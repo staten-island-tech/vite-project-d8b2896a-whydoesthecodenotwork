@@ -1,5 +1,10 @@
+// every product has at least 1 type by default and the selected property
+// selected property saves the user's dropdown selection so filtering is easier to add
+// even products with 1 type have it, but they don't get a dropdown
+
 const products = [
     {
+        selected: 0,
         name: "Dr. Breen's private reserve",
         types: [
             {
@@ -30,44 +35,69 @@ const products = [
         ],
     },
     {
+        selected: 0,
         name: "Gelatinated Calorie Pastes",
-        price: 3.99,
-        discounted: NaN,
-        rating: 1.3,
-        image: "paste.png",
-        description: "Egg flavored",
+        types: [
+            {
+                price: 3.99,
+                discounted: NaN,
+                rating: 1.3,
+                image: "paste.png",
+                description: "Egg flavored",
+            },
+        ],
     },
     {
+        selected: 0,
         name: "Desiccated Sustenance Bars",
-        price: 2.99,
-        discounted: NaN,
-        rating: 3.1,
-        image: "bar.png",
-        description: "Water flavored",
+        types: [
+            {
+                price: 2.99,
+                discounted: NaN,
+                rating: 3.1,
+                image: "bar.png",
+                description: "Water flavored",
+            },
+        ],
     },
     {
+        selected: 0,
         name: "Standard Ration",
-        price: 5.99,
-        discounted: 5.98,
-        rating: 2.8,
-        image: "ration.png",
-        description: "Standard citizen ration",
+        types: [
+            {
+                price: 5.99,
+                discounted: 5.98,
+                rating: 2.8,
+                image: "ration.png",
+                description: "Standard citizen ration",
+            },
+        ],
     },
     {
+        selected: 0,
         name: "Melon",
-        price: 99.99,
-        discounted: 99.98,
-        rating: 5,
-        image: "melon.png",
-        description: "Melon",
+        types: [
+            {
+                price: 99.99,
+                discounted: 99.98,
+                rating: 5,
+                image: "melon.png",
+                description: "Melon",
+            },
+        ],
     },
     {
+        selected: 0,
         name: "Beer",
-        price: NaN,
-        discounted: NaN,
-        rating: 5,
-        image: "beer.png",
-        description: "Melon",
+        types: [
+            {
+                price: NaN,
+                discounted: NaN,
+                rating: 5,
+                image: "beer.png",
+                description: "Melon",
+            },
+        ],
     },
 ];
 

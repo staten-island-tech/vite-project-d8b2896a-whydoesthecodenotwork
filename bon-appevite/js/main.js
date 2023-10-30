@@ -1,10 +1,22 @@
 import { products } from "./cards.js";
-const html = document.querySelector("html");
+const head = document.querySelector("head");
 const app = document.querySelector("#app");
-html.insertAdjacentHTML(
+head.insertAdjacentHTML(
     "beforeend",
     `<link rel="stylesheet" href="styles/style.css">`
 );
+
+products.forEach((product) => {
+    // preload all product images here, because otherwise the card changes size for a split second due to no image
+    product.types.forEach((item) => preloadImage(item));
+});
+
+function preloadImage(item) {
+    head.insertAdjacentHTML(
+        "beforeend",
+        `<link rel="preload" href="images/${item.image}" as="image" />`
+    );
+}
 
 // document
 // 	.querySelector('input[type="range"')
@@ -17,6 +29,11 @@ function updateFilter(event) {
         // we ran this function outside of an event listener... too bad!
     }
     app.replaceChildren();
+    // const filteredProducts = products.filter(
+    //     (product) => product.types[product.selected].rating > 3
+    // );
+    // filteredProducts.forEach((product) => addCard(product));
+    // demo for filtering
     products.forEach((product) => addCard(product));
 }
 
@@ -30,11 +47,8 @@ function addCard(product) {
 }
 
 function insertCard(product) {
-    if (product.hasOwnProperty("types")) {
-        var item = product.types[0]; // const has block scope... too bad!
-    } else {
-        var item = product;
-    }
+    var item = product.types[0]; // get the first one by default
+    product.selected = 0;
     app.insertAdjacentHTML(
         "beforeend",
         `
@@ -56,22 +70,17 @@ function insertCard(product) {
 		`
     );
 
-    // we're adding the dropdown and its event listener here
-    // because adding it in the updateCard was recursion
     const card = app.lastElementChild;
 
-    if (
-        (card.querySelector("select") == null) &
-        product.hasOwnProperty("types")
-    ) {
-        // add a select element if it doesn't already exist and we need it
+    // add a select element if it doesn't already exist and we need it
+    if ((card.querySelector("select") == null) & (product.types.length > 1)) {
         const select = document.createElement("select");
-        product.types.forEach((type) =>
+        product.types.forEach((type) => {
             select.insertAdjacentHTML(
                 "beforeend",
                 `<option value="${type.type}">${type.type}</option>`
-            )
-        );
+            );
+        });
         select.children[0].selected = true;
         card.querySelector("button").insertAdjacentElement(
             "beforebegin",
@@ -84,9 +93,9 @@ function insertCard(product) {
 }
 
 function updateCard(card, product) {
-    if (card.querySelector("select") !== null) {
-        const savedIndex = card.querySelector("select").selectedIndex;
-        var item = product.types[savedIndex];
+    if (card.querySelector("select")) {
+        product.selected = card.querySelector("select").selectedIndex;
+        var item = product.types[product.selected];
         card.innerHTML = `
 							<h2>${product.name}</h2>
 							<s><h4>$${item.price}</h4></s>
@@ -112,12 +121,12 @@ function updateCard(card, product) {
                 `<option value="${type.type}">${type.type}</option>`
             )
         );
-        select.children[savedIndex].selected = true;
+        select.children[product.selected].selected = true;
         card.querySelector("select").addEventListener("change", function () {
             updateCard(card, product);
         });
     } else {
-        var item = product;
+        var item = product.types[0];
     }
 
     // console.log(item);

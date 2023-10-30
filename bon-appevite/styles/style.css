@@ -16,9 +16,11 @@
 	display: flex;
 	flex-direction: column;
 	max-width: 50%;
+	min-width: 20%;
 	gap: 1rem;
 	padding: 1%;
 	flex-grow: 1;
+	justify-content: space-evenly;
 }
 
 .card * {
@@ -46,9 +48,14 @@
 
 .card .stars {
 	display: inline-flex;
-	gap: 2.5%;
+	gap: 2px;
 	flex-grow: 1;
 	justify-content: center;
+	/* round the corners. awesome */
+	border-radius: 1rem;
+	border: 3px black solid;
+	overflow: hidden;
+	background: black;
 }
 
 .card .stars .star {

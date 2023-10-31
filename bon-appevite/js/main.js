@@ -1,7 +1,11 @@
 import { products } from "./cards.js";
-const head = document.querySelector("head");
-const app = document.querySelector("#app");
-head.insertAdjacentHTML(
+
+const DOMSelectors = {
+    head: document.querySelector("head"),
+    app: document.querySelector("#app"),
+};
+
+DOMSelectors.head.insertAdjacentHTML(
     "beforeend",
     `<link rel="stylesheet" href="styles/style.css">`
 );
@@ -12,7 +16,7 @@ products.forEach((product) => {
 });
 
 function preloadImage(item) {
-    head.insertAdjacentHTML(
+    DOMSelectors.head.insertAdjacentHTML(
         "beforeend",
         `<link rel="preload" href="images/${item.image}" as="image" />`
     );
@@ -28,7 +32,7 @@ function updateFilter(event) {
     } catch (error) {
         // we ran this function outside of an event listener... too bad!
     }
-    app.replaceChildren();
+    DOMSelectors.app.replaceChildren();
     // const filteredProducts = products.filter(
     //     (product) => product.types[product.selected].rating > 3
     // );
@@ -42,38 +46,47 @@ updateFilter();
 function addCard(product) {
     {
         insertCard(product); // insert card with all fields filled
-        updateCard(app.lastElementChild, product); // go in and edit the fields that aren't needed and other stuff
+        updateCard(DOMSelectors.app.lastElementChild, product); // go in and edit the fields that aren't needed and other stuff
     }
 }
 
 function insertCard(product) {
     var item = product.types[0]; // get the first one by default
-    product.selected = 0;
-    app.insertAdjacentHTML(
+    // This is a blank card... too bad!
+    DOMSelectors.app.insertAdjacentHTML(
         "beforeend",
         `
 		<div class="card">
-		<h2>${product.name}</h2>
-		<s><h4>$${item.price}</h4></s>
-			<h3>$${item.discounted}</h3>
-			<img src="images/${item.image}" alt="great product" />
-			<div class="rating">
-				<h3>${item.rating}</h3>
-				<div class="stars">
-				
-				</div>
-            </div>
-			<button onclick="alert('you shall not buy!!')">
-			BUY NOW!!
-			</button>
 		</div>	
 		`
     );
+}
 
-    const card = app.lastElementChild;
+function updateCard(card, product) {
+    // if the card has a select element (it will not have one if it has only 1 type or it just got created),
+    // update product.selected to the selected option
+    // it will then be used in updating the card
+    if (card.querySelector("select")) {
+        product.selected = card.querySelector("select").selectedIndex;
+    }
+    // all products have a default product.selected of 0
+    var item = product.types[product.selected];
+    card.innerHTML = `
+                        <h2>${product.name}</h2>
+                        <s><h4>$${item.price}</h4></s>
+                            <h3>$${item.discounted}</h3>
+                            <img src="images/${item.image}" alt="great product" />
+                            <div class="rating" title="This item has a rating of ${item.rating} stars">
+                                <div class="stars"></div>
+                            </div>
+                            <h4>${item.description}</h4>
+                            <button onclick="alert('you shall not buy!!')">
+                            BUY NOW!!
+                            </button>
+    `;
 
     // add a select element if it doesn't already exist and we need it
-    if ((card.querySelector("select") == null) & (product.types.length > 1)) {
+    if (product.types.length > 1) {
         const select = document.createElement("select");
         product.types.forEach((type) => {
             select.insertAdjacentHTML(
@@ -81,7 +94,8 @@ function insertCard(product) {
                 `<option value="${type.type}">${type.type}</option>`
             );
         });
-        select.children[0].selected = true;
+        // because we just blew up the select element and are re-adding it, select the last user selected element
+        select.children[product.selected].selected = true;
         card.querySelector("button").insertAdjacentElement(
             "beforebegin",
             select
@@ -90,46 +104,7 @@ function insertCard(product) {
             updateCard(card, product);
         });
     }
-}
 
-function updateCard(card, product) {
-    if (card.querySelector("select")) {
-        product.selected = card.querySelector("select").selectedIndex;
-        var item = product.types[product.selected];
-        card.innerHTML = `
-							<h2>${product.name}</h2>
-							<s><h4>$${item.price}</h4></s>
-								<h3>$${item.discounted}</h3>
-								<img src="images/${item.image}" alt="great product" />
-								<div class="rating">
-									<h3>${item.rating}</h3>
-									<div class="stars">
-									
-									</div>
-                                </div>
-                                <select></select>
-								<button onclick="alert('you shall not buy!!')">
-								BUY NOW!!
-								</button>
-        `;
-        // redo the card with all the new values, but don't use insertCard because that adds a new card
-        // then edit the select element i threw in there
-        const select = card.querySelector("select");
-        product.types.forEach((type) =>
-            select.insertAdjacentHTML(
-                "beforeend",
-                `<option value="${type.type}">${type.type}</option>`
-            )
-        );
-        select.children[product.selected].selected = true;
-        card.querySelector("select").addEventListener("change", function () {
-            updateCard(card, product);
-        });
-    } else {
-        var item = product.types[0];
-    }
-
-    // console.log(item);
     // If the item has no price, label it as out of stock
     if (isNaN(item.price)) {
         card.querySelector("h4").innerText = "This item is out of stock.";
@@ -149,7 +124,8 @@ function updateCard(card, product) {
     // Items with dropdown will just keep adding stars
     stars.replaceChildren();
     var rating = item.rating;
-    for (let i = 0; i < 5; i++) {
+    while (rating > 0 || stars.children.length < 5) {
+        // Now we can have more than 5 stars
         stars.insertAdjacentHTML(
             "beforeend",
             `						
@@ -159,10 +135,8 @@ function updateCard(card, product) {
 					</div>
 					`
         );
-        if (rating > 0) {
-            stars.lastElementChild.children[0].style.width =
-                Math.min(1, rating) * 100 + "%";
-            rating -= 1;
-        }
+        stars.lastElementChild.children[0].style.width =
+            Math.min(1, rating) * 100 + "%";
+        rating -= 1;
     }
 }

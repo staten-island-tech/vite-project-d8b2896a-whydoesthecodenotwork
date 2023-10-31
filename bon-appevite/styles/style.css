@@ -1,88 +1,92 @@
 @import url(themes.css);
 
 #app {
-    background-color: lightgray;
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: space-around;
-    gap: 1rem;
+	background-color: lightgray;
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	justify-content: space-around;
+	gap: 1rem;
+}
+
+#filter label {
+	display: flex;
 }
 
 .card {
-    border: 6px solid black;
-    border-radius: 1rem;
-    align-items: center;
-    display: flex;
-    flex-direction: column;
-    min-width: 20%;
-    gap: 1rem;
-    padding: 1%;
-    flex-grow: 1;
-    justify-content: space-evenly;
-    text-align: center;
+	border: 6px solid black;
+	border-radius: 1rem;
+	align-items: center;
+	display: flex;
+	flex-direction: column;
+	min-width: 20%;
+	gap: 1rem;
+	padding: 1%;
+	flex-grow: 1;
+	justify-content: space-evenly;
+	text-align: center;
 }
 
 .card * {
-    margin: 0 auto;
+	margin: 0 auto;
 }
 
 .card img {
-    max-width: 100%;
+	max-width: 100%;
 }
 
 .card .rating {
-    display: inline-flex;
-    justify-content: space-between;
-    width: 100%;
-    flex-wrap: wrap;
+	display: inline-flex;
+	justify-content: space-between;
+	width: 100%;
+	flex-wrap: wrap;
 }
 
 .card .rating * {
-    margin: auto 0;
+	margin: auto 0;
 }
 
 .card .rating h3 {
-    margin-right: 1rem;
+	margin-right: 1rem;
 }
 
 .card .stars {
-    display: inline-flex;
-    gap: 2px;
-    flex-grow: 1;
-    justify-content: center;
-    /* round the corners. awesome */
-    border-radius: 1rem;
-    border: 3px black solid;
-    overflow: hidden;
-    background: black;
+	display: inline-flex;
+	gap: 2px;
+	flex-grow: 1;
+	justify-content: center;
+	/* round the corners. awesome */
+	border-radius: 1rem;
+	border: 3px black solid;
+	overflow: hidden;
+	background: black;
 }
 
 .card .stars .star {
-    width: 20%;
-    height: 1rem;
-    display: inline-flex;
-    justify-content: left;
-    align-items: baseline;
-    gap: 0;
-    background-color: grey;
-    margin: 0;
+	width: 20%;
+	height: 1rem;
+	display: inline-flex;
+	justify-content: left;
+	align-items: baseline;
+	gap: 0;
+	background-color: grey;
+	margin: 0;
 }
 
 .card .stars .star * {
-    height: 1rem;
-    margin: 0;
+	height: 1rem;
+	margin: 0;
 }
 
 .card .stars .star .filled {
-    background-color: yellow;
+	background-color: yellow;
 }
 
 .card .stars .star .empty {
-    width: auto;
+	width: auto;
 }
 
 .card button {
-    width: 100%;
-    height: 2rem;
+	width: 100%;
+	height: 2rem;
 }

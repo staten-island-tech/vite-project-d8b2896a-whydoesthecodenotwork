@@ -1,4 +1,5 @@
 import { products } from "./cards.js";
+import { filterData } from "./filters.js";
 
 const DOMSelectors = {
     head: document.querySelector("head"),
@@ -33,6 +34,7 @@ function addCards() {
         input.addEventListener("input", function () {
             updateFilter(input);
         });
+        updateFilter(input);
     });
 }
 
@@ -69,12 +71,13 @@ function shouldDisplay(product) {
 
 function updateFilter(input) {
     filters[input.name] = input.value;
+    input.parentElement.querySelector("h5").innerText =
+        filterData[input.name].prefix +
+        input.value +
+        filterData[input.name].suffix;
     products.forEach((product) => {
         shouldDisplay(product);
     });
-
-    // todo: fix this
-    input.parentElement.childNodes[2].nodeValue = input.value;
 }
 
 function addCard(product) {
@@ -119,6 +122,7 @@ function updateCard(card, product) {
     // add a select element if it doesn't already exist and we need it
     if (product.types.length > 1) {
         const select = document.createElement("select");
+        select.setAttribute("title", "Select a product type");
         product.types.forEach((type) => {
             select.insertAdjacentHTML(
                 "beforeend",

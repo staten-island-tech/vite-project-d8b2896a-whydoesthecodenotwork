@@ -9,8 +9,9 @@
 	gap: 1rem;
 }
 
-#filter label {
+#filters .filter {
 	display: flex;
+	align-items: center;
 }
 
 .card {

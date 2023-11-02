@@ -1,8 +1,13 @@
-// this file has prefixes and suffixes for the filter display values
+// this file has filter display data
 
 const filterData = {
     maxprice: {
         prefix: "$",
+        suffix: "",
+        displayValue: true,
+    },
+    savings: {
+        prefix: "",
         suffix: "",
     },
 };

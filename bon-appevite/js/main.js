@@ -22,9 +22,13 @@ products.forEach((product) => {
 });
 
 // because i want global scope on these
-const inputs = document.querySelectorAll("input");
+const inputs = [];
 const filters = {};
-inputs.forEach((input) => (filters[input.name] = input.value));
+
+document.querySelectorAll(".filter").forEach((input) => {
+    inputs.push(input.children[1]);
+    filters[input.children[1].name] = input.children[1].value;
+});
 
 function addCards() {
     products.forEach((product) => addCard(product));
@@ -64,17 +68,51 @@ function isFiltered(product) {
 }
 
 function shouldDisplay(product) {
-    DOMSelectors["app"].querySelector(
+    const card = DOMSelectors["app"].querySelector(
         `div[name="${product.name}"]`
-    ).style.display = isFiltered(product) ? "flex" : "none";
+    );
+    if (isFiltered(product)) {
+        card.style.display = "flex";
+        const item = product.types[product.selected];
+
+        // shouldDisplay runs when a filter is updated so just
+        if (!isNaN(item.price) && !isNaN(item.discounted)) {
+            card.querySelector("em").style.display = "unset";
+            switch (filters.savings) {
+                case "percent":
+                    card.querySelector("em h4").innerText = `You save ${
+                        Math.trunc(
+                            (((item.price - item.discounted) * 100) /
+                                item.price) *
+                                10
+                        ) / 10
+                    }%`;
+                    break;
+                case "number":
+                    card.querySelector("em h4").innerText = `You save $${
+                        Math.trunc((item.price - item.discounted) * 100) / 100
+                    }`;
+                    break;
+                case "none":
+                    card.querySelector("em").style.display = "none";
+                    break;
+            }
+        } else {
+            card.querySelector("em").style.display = "none";
+        }
+    } else {
+        card.style.display = "none";
+    }
 }
 
 function updateFilter(input) {
     filters[input.name] = input.value;
-    input.parentElement.querySelector("h5").innerText =
-        filterData[input.name].prefix +
-        input.value +
-        filterData[input.name].suffix;
+    if (filterData[input.name].shouldDisplay) {
+        input.parentElement.querySelector("h5").innerText =
+            filterData[input.name].prefix +
+            input.value +
+            filterData[input.name].suffix;
+    }
     products.forEach((product) => {
         shouldDisplay(product);
     });
@@ -105,10 +143,12 @@ function updateCard(card, product) {
     }
     // all products have a default product.selected of 0
     var item = product.types[product.selected];
+
     card.innerHTML = `
                         <h2>${product.name}</h2>
                         <s><h4>$${item.price}</h4></s>
                             <h3>$${item.discounted}</h3>
+                            <em><h4>You save nothing!</h4></em>
                             <img src="images/${item.image}" alt="great product" />
                             <div class="rating" title="This item has a rating of ${item.rating} stars">
                                 <div class="stars"></div>
@@ -172,5 +212,6 @@ function updateCard(card, product) {
             Math.min(1, rating) * 100 + "%";
         rating -= 1;
     }
+
     shouldDisplay(product);
 }

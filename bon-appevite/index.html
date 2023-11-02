@@ -9,10 +9,18 @@
 	<body>
 		<h1>city 17 gift shop</h1>
 		<div id="filters">
-            <div class="filter" id="maxprice">
+            <div class="filter">
 				<label for="maxprice">max price:</label>
 				<input name="maxprice" id="maxprice" type="range" min="0" max="100" step="0.1"></input>
 				<h5></h5>
+			</div>
+			<div class="filter">
+				<label for="savings">savings display option:</label>
+				<select name="savings" id="savings">
+					<option name="percent" selected>percent</option>
+					<option name="number">number</option>
+					<option name="none">none</option>
+				</select>
 			</div>
         </div>
 		<div id="app"></div>

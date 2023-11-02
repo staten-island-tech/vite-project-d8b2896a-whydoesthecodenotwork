@@ -73,33 +73,6 @@ function shouldDisplay(product) {
     );
     if (isFiltered(product)) {
         card.style.display = "flex";
-        const item = product.types[product.selected];
-
-        // shouldDisplay runs when a filter is updated so just
-        if (!isNaN(item.price) && !isNaN(item.discounted)) {
-            card.querySelector("em").style.display = "unset";
-            switch (filters.savings) {
-                case "percent":
-                    card.querySelector("em h4").innerText = `You save ${
-                        Math.trunc(
-                            (((item.price - item.discounted) * 100) /
-                                item.price) *
-                                10
-                        ) / 10
-                    }%`;
-                    break;
-                case "number":
-                    card.querySelector("em h4").innerText = `You save $${
-                        Math.trunc((item.price - item.discounted) * 100) / 100
-                    }`;
-                    break;
-                case "none":
-                    card.querySelector("em").style.display = "none";
-                    break;
-            }
-        } else {
-            card.querySelector("em").style.display = "none";
-        }
     } else {
         card.style.display = "none";
     }
@@ -107,15 +80,51 @@ function shouldDisplay(product) {
 
 function updateFilter(input) {
     filters[input.name] = input.value;
-    if (filterData[input.name].shouldDisplay) {
+    if (filterData[input.name].displayValue) {
         input.parentElement.querySelector("h5").innerText =
             filterData[input.name].prefix +
-            input.value +
+            parseFloat(input.value).toFixed(2) +
             filterData[input.name].suffix;
     }
     products.forEach((product) => {
         shouldDisplay(product);
+        // if the savings dropdown was updated, update the cards
+        if (input.name === "savings") {
+            updateSavings(product);
+        }
     });
+}
+
+function updateSavings(product) {
+    const card = DOMSelectors["app"].querySelector(
+        `div[name="${product.name}"]`
+    );
+    const item = product.types[product.selected];
+    if (!isNaN(item.price) && !isNaN(item.discounted)) {
+        card.querySelector("em").style.display = "unset";
+        switch (filters.savings) {
+            case "percent":
+                card.querySelector("em h4").innerText = `You save ${
+                    Math.trunc(
+                        (((item.price - item.discounted) * 100) / item.price) *
+                            10
+                    ) / 10
+                }%`;
+                break;
+            case "number":
+                // blame floating point
+                card.querySelector("em h4").innerText = `You save $${(
+                    (item.price * 100 - item.discounted * 100) /
+                    100
+                ).toFixed(2)}`;
+                break;
+            case "none":
+                card.querySelector("em").style.display = "none";
+                break;
+        }
+    } else {
+        card.querySelector("em").style.display = "none";
+    }
 }
 
 function addCard(product) {
@@ -214,4 +223,5 @@ function updateCard(card, product) {
     }
 
     shouldDisplay(product);
+    updateSavings(product);
 }

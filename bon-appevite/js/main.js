@@ -11,8 +11,8 @@ DOMSelectors.head.insertAdjacentHTML(
     `<link rel="stylesheet" href="styles/style.css">`
 );
 
+// preload all product images here, because otherwise the card changes size for a split second due to no image
 products.forEach((product) => {
-    // preload all product images here, because otherwise the card changes size for a split second due to no image
     product.types.forEach((item) => {
         DOMSelectors.head.insertAdjacentHTML(
             "beforeend",
@@ -25,70 +25,78 @@ products.forEach((product) => {
 const inputs = [];
 const filters = {};
 
+// for each filter, add:
+// the input element to inputs
+// the input name : input value to filters
 document.querySelectorAll(".filter").forEach((input) => {
     inputs.push(input.children[1]);
     filters[input.children[1].name] = input.children[1].value;
 });
 
-function addCards() {
-    products.forEach((product) => addCard(product));
+function addCard(product) {
+    insertCard(product); // insert a blank card
+    updateCard(DOMSelectors.app.lastElementChild, product); // go in and edit the fields that aren't needed and other stuff
+}
 
-    // this also adds event listeners to the inputs
-    inputs.forEach((input) => {
-        input.addEventListener("input", function () {
-            updateFilter(input);
-        });
+// add card elements
+products.forEach((product) => addCard(product));
+
+// add event listeners to the inputs
+inputs.forEach((input) => {
+    input.addEventListener("input", function () {
         updateFilter(input);
     });
-}
-
-addCards();
-
-function isFiltered(product) {
-    // go through all the filters and check product eligibility
-    const item = product.types[product.selected];
-
-    // always show out of stock products
-    if (!(isNaN(item.price) && isNaN(item.discounted))) {
-        const prices = [item.price, item.discounted];
-        // remove any nan prices
-        prices.forEach((price) => {
-            if (isNaN(price)) {
-                prices.splice(prices.indexOf(price), 1);
-            }
-        });
-        // then get the lower of the two (or the one if there's only one)
-        // ... is spread operator, because Math.min doesn't actually take arrays
-        if (Math.min(...prices) > filters.maxprice) {
-            return 0;
-        }
-    }
-
-    return 1;
-}
-
-function shouldDisplay(product) {
-    const card = DOMSelectors["app"].querySelector(
-        `div[name="${product.name}"]`
-    );
-    if (isFiltered(product)) {
-        card.style.display = "flex";
-    } else {
-        card.style.display = "none";
-    }
-}
+    updateFilter(input);
+});
 
 function updateFilter(input) {
+    if (input.name === "sort") {
+        switch (filters.sort) {
+            case "alphabetical":
+                products.sort((a, b) => {
+                    if (a.name < b.name) {
+                        return -1;
+                    } else {
+                        return 1;
+                    }
+                });
+                break;
+            case "price":
+                products.sort((a, b) => {
+                    const aprice = getLowerNum(
+                        a.types[a.selected].price,
+                        a.types[a.selected].discounted
+                    );
+                    const bprice = getLowerNum(
+                        b.types[b.selected].price,
+                        b.types[b.selected].discounted
+                    );
+                    if (aprice < bprice) {
+                        return -1;
+                    } else {
+                        return 1;
+                    }
+                });
+                break;
+        }
+        DOMSelectors.app.replaceChildren();
+        console.log(products);
+        products.forEach((product) => addCard(product));
+    }
+
+    // if the input should display its value, update the h5 here
     filters[input.name] = input.value;
     if (filterData[input.name].displayValue) {
         input.parentElement.querySelector("h5").innerText =
             filterData[input.name].prefix +
-            parseFloat(input.value).toFixed(2) +
+            parseFloat(input.value).toFixed(filterData[input.name].places) +
             filterData[input.name].suffix;
     }
+
+    // check which products should be displayed whenever a filter is updated
     products.forEach((product) => {
         shouldDisplay(product);
-        // if the savings dropdown was updated, update the cards
+        // if the savings dropdown was updated, update the cards' discount display
         if (input.name === "savings") {
             updateSavings(product);
         }
@@ -101,6 +109,7 @@ function updateSavings(product) {
     );
     const item = product.types[product.selected];
     if (!isNaN(item.price) && !isNaN(item.discounted)) {
+        // show by default - if the savings is none, set display to none later
         card.querySelector("em").style.display = "unset";
         switch (filters.savings) {
             case "percent":
@@ -123,13 +132,53 @@ function updateSavings(product) {
                 break;
         }
     } else {
+        // out of stock products should never have a discount display
         card.querySelector("em").style.display = "none";
     }
 }
 
-function addCard(product) {
-    insertCard(product); // insert a blank card
-    updateCard(DOMSelectors.app.lastElementChild, product); // go in and edit the fields that aren't needed and other stuff
+// go through all the filters and check product eligibility
+function isFiltered(product) {
+    const item = product.types[product.selected];
+
+    // this block is for max price filtering
+    // always show out of stock products
+    if (!(isNaN(item.price) && isNaN(item.discounted))) {
+        if (getLowerNum(item.price, item.discounted) > filters.maxprice) {
+            return 0;
+        }
+    }
+
+    if (item.rating < filters.rating) {
+        return 0;
+    }
+
+    // return 1 at the end if the product should be shown, return 0 early if it didn't meet filters
+    return 1;
+}
+
+function getLowerNum(a, b) {
+    const nums = [a, b];
+    // remove any nan
+    nums.forEach((x) => {
+        if (isNaN(x)) {
+            nums.splice(nums.indexOf(x), 1);
+        }
+    });
+    // then get the lower of the two (or the one if there's only one)
+    // ... is spread operator, because Math.min doesn't actually take arrays
+    return Math.min(...nums);
+}
+
+function shouldDisplay(product) {
+    const card = DOMSelectors["app"].querySelector(
+        `div[name="${product.name}"]`
+    );
+    if (isFiltered(product)) {
+        card.style.display = "flex";
+    } else {
+        card.style.display = "none";
+    }
 }
 
 function insertCard(product) {
@@ -222,6 +271,7 @@ function updateCard(card, product) {
         rating -= 1;
     }
 
+    // now that the card content has been updated, check the filter status and update the discount display
     shouldDisplay(product);
     updateSavings(product);
 }

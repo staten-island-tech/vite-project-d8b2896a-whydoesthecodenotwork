@@ -5,8 +5,19 @@ const filterData = {
         prefix: "$",
         suffix: "",
         displayValue: true,
+        places: 2,
     },
     savings: {
+        prefix: "",
+        suffix: "",
+    },
+    rating: {
+        prefix: "",
+        suffix: " stars",
+        displayValue: true,
+        places: 1,
+    },
+    sort: {
         prefix: "",
         suffix: "",
     },

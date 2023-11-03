@@ -22,6 +22,19 @@
 					<option name="none">none</option>
 				</select>
 			</div>
+			<div class="filter">
+				<label for="rating">minimum rating:</label>
+				<input name="rating" id="rating" type="range" min="0" max="5" step="0.1"></input>
+				<h5></h5>
+			</div>
+			<div class="filter">
+				<label for="sort">sort by:</label>
+				<select name="sort" id="sort">
+					<option name="alphabetical" selected>alphabetical</option>
+					<option name="price">price</option>
+					<option name="rating">rating</option>
+				</select>
+			</div>
         </div>
 		<div id="app"></div>
 		<script type="module" src="js/main.js"></script>

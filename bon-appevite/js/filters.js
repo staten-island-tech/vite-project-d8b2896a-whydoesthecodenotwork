@@ -21,6 +21,14 @@ const filterData = {
         prefix: "",
         suffix: "",
     },
+    direction: {
+        prefix: "",
+        suffix: "",
+    },
+    stock: {
+        prefix: "",
+        suffix: "",
+    },
 };
 
 export { filterData };

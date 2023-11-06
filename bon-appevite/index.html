@@ -24,16 +24,24 @@
 			</div>
 			<div class="filter">
 				<label for="rating">minimum rating:</label>
-				<input name="rating" id="rating" type="range" min="0" max="5" step="0.1"></input>
+				<input name="rating" id="rating" type="range" min="0" max="5" step="0.1" value="1"></input>
 				<h5></h5>
 			</div>
 			<div class="filter">
 				<label for="sort">sort by:</label>
 				<select name="sort" id="sort">
-					<option name="alphabetical" selected>alphabetical</option>
-					<option name="price">price</option>
-					<option name="rating">rating</option>
+					<option name="alphabetical" selected>alphabetical (a to z)</option>
+					<option name="price">price (low to high)</option>
+					<option name="rating">rating (high to low)</option>
 				</select>
+			</div>
+			<div class="filter">
+				<label for="direction">reverse sort?</label>
+				<input name="direction" id="direction" type="checkbox" value="on"></input>
+			</div>
+			<div class="filter">
+				<label for="stock">show out of stock?</label>
+				<input name="stock" id="stock" type="checkbox" value="on"></input>
 			</div>
         </div>
 		<div id="app"></div>

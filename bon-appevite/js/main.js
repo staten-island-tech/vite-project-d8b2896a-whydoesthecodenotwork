@@ -1,6 +1,5 @@
 import { products } from "./cards.js";
 import { filterData } from "./filters.js";
-
 const DOMSelectors = {
     head: document.querySelector("head"),
     app: document.querySelector("#app"),
@@ -22,15 +21,13 @@ products.forEach((product) => {
 });
 
 // because i want global scope on these
-const inputs = [];
-const filters = {};
+// inputs contains the input elements
+const inputs = {};
 
 // for each filter, add:
-// the input element to inputs
-// the input name : input value to filters
+// the input name : input element, to inputs
 document.querySelectorAll(".filter").forEach((input) => {
-    inputs.push(input.children[1]);
-    filters[input.children[1].name] = input.children[1].value;
+    inputs[input.children[1].name] = input.children[1];
 });
 
 function addCard(product) {
@@ -41,23 +38,29 @@ function addCard(product) {
 // add card elements
 products.forEach((product) => addCard(product));
 
-// add event listeners to the inputs
-inputs.forEach((input) => {
-    input.addEventListener("input", function () {
-        updateFilter(input);
+// add event listeners to the inputs, and update all of them right now
+Object.keys(inputs).forEach((input) => {
+    inputs[input].addEventListener("input", function () {
+        updateFilter(inputs[input]);
     });
-    updateFilter(input);
+    updateFilter(inputs[input]);
 });
 
 function updateFilter(input) {
-    if (input.name === "sort") {
-        switch (filters.sort) {
+    if (input.name === "direction") {
+        input.value = input.checked === false ? -1 : 1;
+        // input.checked returns 0 or 1. but we need -1 or 1. Commit atrocity
+    }
+    if (input.name === "sort" || input.name === "direction") {
+        // inputs.sort.value will return the actual display name of the selected element
+        // but i need the html name attribute of the selected element
+        switch (inputs.sort.selectedOptions[0].getAttribute("name")) {
             case "alphabetical":
                 products.sort((a, b) => {
                     if (a.name < b.name) {
-                        return -1;
+                        return inputs.direction.value;
                     } else {
-                        return 1;
+                        return inputs.direction.value * -1;
                     }
                 });
                 break;
@@ -72,20 +75,29 @@ function updateFilter(input) {
                         b.types[b.selected].discounted
                     );
                     if (aprice < bprice) {
-                        return -1;
+                        return inputs.direction.value;
                     } else {
-                        return 1;
+                        return inputs.direction.value * -1;
+                    }
+                });
+                break;
+            case "rating":
+                products.sort((a, b) => {
+                    if (
+                        a.types[a.selected].rating > b.types[b.selected].rating
+                    ) {
+                        return inputs.direction.value;
+                    } else {
+                        return inputs.direction.value * -1;
                     }
                 });
                 break;
         }
         DOMSelectors.app.replaceChildren();
-        console.log(products);
         products.forEach((product) => addCard(product));
     }
 
     // if the input should display its value, update the h5 here
-    filters[input.name] = input.value;
     if (filterData[input.name].displayValue) {
         input.parentElement.querySelector("h5").innerText =
             filterData[input.name].prefix +
@@ -111,7 +123,7 @@ function updateSavings(product) {
     if (!isNaN(item.price) && !isNaN(item.discounted)) {
         // show by default - if the savings is none, set display to none later
         card.querySelector("em").style.display = "unset";
-        switch (filters.savings) {
+        switch (inputs.savings.value) {
             case "percent":
                 card.querySelector("em h4").innerText = `You save ${
                     Math.trunc(
@@ -142,14 +154,16 @@ function isFiltered(product) {
     const item = product.types[product.selected];
 
     // this block is for max price filtering
-    // always show out of stock products
+    // show out of stock products if user says so
     if (!(isNaN(item.price) && isNaN(item.discounted))) {
-        if (getLowerNum(item.price, item.discounted) > filters.maxprice) {
+        if (getLowerNum(item.price, item.discounted) > inputs.maxprice.value) {
             return 0;
         }
+    } else {
+        return inputs.stock.checked * -1;
     }
 
-    if (item.rating < filters.rating) {
+    if (item.rating < inputs.rating.value) {
         return 0;
     }
 
@@ -234,7 +248,9 @@ function updateCard(card, product) {
             select
         );
         card.querySelector("select").addEventListener("change", function () {
+            // dropdowns can change the sort order, so sort everything again after a dropdown changes
             updateCard(card, product);
+            updateFilter(inputs.sort);
         });
     }
 
@@ -271,7 +287,7 @@ function updateCard(card, product) {
         rating -= 1;
     }
 
-    // now that the card content has been updated, check the filter status and update the discount display
+    // check if card should display. update savings display. update all the filters if all cards are loaded in case sort changed
     shouldDisplay(product);
     updateSavings(product);
 }

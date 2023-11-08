@@ -100,19 +100,6 @@ const products = [
             },
         ],
     },
-    {
-        selected: 0,
-        name: "Placeholder",
-        types: [
-            {
-                price: NaN,
-                discounted: NaN,
-                rating: 4.9,
-                image: "beer.png",
-                description: `WHAT??`,
-            },
-        ],
-    },
 ];
 
 export { products };

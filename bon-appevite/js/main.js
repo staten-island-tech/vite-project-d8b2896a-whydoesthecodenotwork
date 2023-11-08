@@ -3,6 +3,7 @@ import { filterData } from "./filters.js";
 const DOMSelectors = {
     head: document.querySelector("head"),
     app: document.querySelector("#app"),
+    cart: document.querySelector("#cart"),
 };
 
 DOMSelectors.head.insertAdjacentHTML(
@@ -226,7 +227,7 @@ function updateCard(card, product) {
                                 <div class="stars"></div>
                             </div>
                             <h4>${item.description}</h4>
-                            <button onclick="alert('you shall not buy!!')">
+                            <button id="buy">
                             BUY NOW!!
                             </button>
     `;
@@ -257,7 +258,6 @@ function updateCard(card, product) {
     // If the item has no price, label it as out of stock
     if (isNaN(item.price)) {
         card.querySelector("h4").innerText = "This item is out of stock.";
-        card.querySelector("button").remove();
     }
 
     // If the item has no discount, make the discount element contain the price.
@@ -265,6 +265,15 @@ function updateCard(card, product) {
     if (isNaN(item.discounted)) {
         card.querySelector("h3").innerText = card.querySelector("h4").innerText;
         card.querySelector("s").remove();
+    }
+
+    // hook up the buy button or remove it
+    if (isNaN(item.price) && isNaN(item.discounted)) {
+        card.querySelector("button").remove();
+    } else {
+        card.querySelector("button").addEventListener("click", function () {
+            cart();
+        });
     }
 
     // Do horrible things to create a ratings bar.
@@ -286,8 +295,35 @@ function updateCard(card, product) {
             Math.min(1, rating) * 100 + "%";
         rating -= 1;
     }
-
     // check if card should display. update savings display. update all the filters if all cards are loaded in case sort changed
     shouldDisplay(product);
     updateSavings(product);
 }
+
+// handle cart shenanigans
+
+let cartDisplay = 0;
+function cart() {
+    if (cartDisplay !== -1) {
+        cartDisplay += 1;
+        DOMSelectors.cart.innerText = `🛒 ${cartDisplay}`;
+        DOMSelectors.cart.style.transitionDuration =
+            (10 / cartDisplay).toString() + "s";
+        console.log((10 / cartDisplay).toString() + "s");
+    }
+}
+
+function payload() {
+    if (cartDisplay > 0) {
+        setTimeout(function () {
+            alert("oh dear");
+        }, 10000 / cartDisplay);
+        DOMSelectors.cart.style.right = "-10%";
+        cartDisplay = -1;
+    } else {
+        alert("You have no items in your cart.");
+    }
+}
+DOMSelectors.cart.addEventListener("click", function () {
+    payload();
+});

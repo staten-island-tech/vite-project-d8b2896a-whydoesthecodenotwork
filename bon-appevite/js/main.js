@@ -4,6 +4,8 @@ const DOMSelectors = {
     head: document.querySelector("head"),
     app: document.querySelector("#app"),
     cart: document.querySelector("#cart"),
+    body: document.querySelector("body"),
+    theme: document.querySelector("#theme"),
 };
 
 DOMSelectors.head.insertAdjacentHTML(
@@ -318,7 +320,7 @@ function payload() {
         setTimeout(function () {
             alert("oh dear");
         }, 10000 / cartDisplay);
-        DOMSelectors.cart.style.right = "-10%";
+        DOMSelectors.cart.style.left = "110%";
         cartDisplay = -1;
     } else {
         alert("You have no items in your cart.");
@@ -326,4 +328,11 @@ function payload() {
 }
 DOMSelectors.cart.addEventListener("click", function () {
     payload();
+});
+
+// handle theme selector down here
+DOMSelectors.theme.addEventListener("input", function () {
+    DOMSelectors.body.className =
+        DOMSelectors.theme.selectedOptions[0].innerHTML;
+    console.log(DOMSelectors.theme.selectedOptions[0].innerHTML);
 });

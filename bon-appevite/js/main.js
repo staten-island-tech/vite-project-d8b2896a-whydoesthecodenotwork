@@ -4,8 +4,6 @@ const DOMSelectors = {
     head: document.querySelector("head"),
     app: document.querySelector("#app"),
     cart: document.querySelector("#cart"),
-    body: document.querySelector("body"),
-    theme: document.querySelector("#theme"),
 };
 
 DOMSelectors.head.insertAdjacentHTML(
@@ -33,20 +31,13 @@ document.querySelectorAll(".filter").forEach((input) => {
     inputs[input.children[1].name] = input.children[1];
 });
 
-function createCard(product) {
-    const card = document.createElement("div");
-    card.setAttribute("name", product.name);
-    console.log(card);
-    updateCard(card, product); // go in and edit the fields that aren't needed and other stuff
-    return card;
-}
-
-function insertCard(card) {
-    DOMSelectors.app.insertAdjacentElement("beforeend", card);
+function addCard(product) {
+    insertCard(product); // insert a blank card
+    updateCard(DOMSelectors.app.lastElementChild, product); // go in and edit the fields that aren't needed and other stuff
 }
 
 // add card elements
-products.forEach((product) => insertCard(createCard(product)));
+products.forEach((product) => addCard(product));
 
 // add event listeners to the inputs, and update all of them right now
 Object.keys(inputs).forEach((input) => {
@@ -104,9 +95,7 @@ function updateFilter(input) {
                 break;
         }
         DOMSelectors.app.replaceChildren();
-        const cards = [];
-        products.forEach((product) => cards.push(createCard(product)));
-        DOMSelectors.app.replaceChildren(cards);
+        products.forEach((product) => addCard(product));
     }
 
     // if the input should display its value, update the h5 here
@@ -119,7 +108,7 @@ function updateFilter(input) {
 
     // check which products should be displayed whenever a filter is updated
     products.forEach((product) => {
-        shouldDisplay(DOMSelectors.app.querySelector(), product);
+        shouldDisplay(product);
         // if the savings dropdown was updated, update the cards' discount display
         if (input.name === "savings") {
             updateSavings(product);
@@ -127,7 +116,10 @@ function updateFilter(input) {
     });
 }
 
-function updateSavings(card, product) {
+function updateSavings(product) {
+    const card = DOMSelectors["app"].querySelector(
+        `div[name="${product.name}"]`
+    );
     const item = product.types[product.selected];
     if (!isNaN(item.price) && !isNaN(item.discounted)) {
         // show by default - if the savings is none, set display to none later
@@ -193,12 +185,26 @@ function getLowerNum(a, b) {
     return Math.min(...nums);
 }
 
-function shouldDisplay(card, product) {
+function shouldDisplay(product) {
+    const card = DOMSelectors["app"].querySelector(
+        `div[name="${product.name}"]`
+    );
     if (isFiltered(product)) {
         card.style.display = "flex";
     } else {
         card.style.display = "none";
     }
+}
+
+function insertCard(product) {
+    // This is a blank card... too bad!
+    DOMSelectors.app.insertAdjacentHTML(
+        "beforeend",
+        `
+		<div class="card" name="${product.name}">
+		</div>	
+		`
+    );
 }
 
 function updateCard(card, product) {
@@ -290,8 +296,8 @@ function updateCard(card, product) {
         rating -= 1;
     }
     // check if card should display. update savings display. update all the filters if all cards are loaded in case sort changed
-    shouldDisplay(card, product);
-    updateSavings(card, product);
+    shouldDisplay(product);
+    updateSavings(product);
 }
 
 // handle cart shenanigans
@@ -312,7 +318,7 @@ function payload() {
         setTimeout(function () {
             alert("oh dear");
         }, 10000 / cartDisplay);
-        DOMSelectors.cart.style.left = "110%";
+        DOMSelectors.cart.style.right = "-10%";
         cartDisplay = -1;
     } else {
         alert("You have no items in your cart.");
@@ -320,11 +326,4 @@ function payload() {
 }
 DOMSelectors.cart.addEventListener("click", function () {
     payload();
-});
-
-// handle theme selector down here
-DOMSelectors.theme.addEventListener("input", function () {
-    DOMSelectors.body.className =
-        DOMSelectors.theme.selectedOptions[0].innerText;
-    console.log(DOMSelectors.theme.selectedOptions[0].innerHTML);
 });

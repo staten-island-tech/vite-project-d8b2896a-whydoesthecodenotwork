@@ -33,6 +33,7 @@ select {
     border: 6px inset var(--border);
     margin: 1% 0;
     padding: 1%;
+    background-color: var(--secondary);
 }
 
 #filters * {
@@ -133,14 +134,23 @@ select {
     width: auto;
 }
 
+@keyframes cartAdd {
+    from {
+        bottom: 2vh;
+    }
+    to {
+        bottom: 3vh;
+    }
+}
+
 #cart {
     display: flex;
     position: fixed;
-    bottom: 1vw;
-    left: 1vw;
+    bottom: 2vh;
+    left: 2vw;
     font-size: 3rem;
-    transition-property: left;
-    transition-timing-function: linear;
+    transition-property: left, bottom;
+    transition-timing-function: ease-in-out;
     border: 10px var(--border) outset;
     border-radius: 5%;
     background-color: var(--secondary);
@@ -154,4 +164,12 @@ select {
 
 #cart:active {
     border: 10px var(--border) inset;
+}
+
+.animation {
+    animation-name: cartAdd;
+    animation-duration: 0.1s;
+    animation-direction: alternate;
+    animation-timing-function: ease-out;
+    animation-iteration-count: infinite;
 }

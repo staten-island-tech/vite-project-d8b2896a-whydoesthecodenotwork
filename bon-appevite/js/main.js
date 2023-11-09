@@ -273,9 +273,7 @@ function updateCard(card, product) {
     if (isNaN(item.price) && isNaN(item.discounted)) {
         card.querySelector("button").remove();
     } else {
-        card.querySelector("button").addEventListener("click", function () {
-            cart();
-        });
+        card.querySelector("button").addEventListener("click", cart);
     }
 
     // Do horrible things to create a ratings bar.
@@ -309,16 +307,25 @@ function cart() {
     if (cartDisplay !== -1) {
         cartDisplay += 1;
         DOMSelectors.cart.innerText = `🛒 ${cartDisplay}`;
+        DOMSelectors.cart.className = "animation";
+        setTimeout(function () {
+            DOMSelectors.cart.className = "";
+        }, 100);
         DOMSelectors.cart.style.transitionDuration =
             (10 / cartDisplay).toString() + "s";
-        console.log((10 / cartDisplay).toString() + "s");
     }
 }
 
 function payload() {
     if (cartDisplay > 0) {
+        DOMSelectors.cart.removeEventListener("click", cartClick);
         setTimeout(function () {
             alert("oh dear");
+            document.querySelectorAll("button").forEach((button) => {
+                button.addEventListener("click", function () {
+                    alert("there's no more cart");
+                });
+            });
         }, 10000 / cartDisplay);
         DOMSelectors.cart.style.left = "110%";
         cartDisplay = -1;
@@ -326,9 +333,12 @@ function payload() {
         alert("You have no items in your cart.");
     }
 }
-DOMSelectors.cart.addEventListener("click", function () {
+
+function cartClick() {
     payload();
-});
+}
+
+DOMSelectors.cart.addEventListener("click", cartClick);
 
 // handle theme selector down here
 DOMSelectors.theme.addEventListener("input", function () {

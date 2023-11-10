@@ -6,14 +6,14 @@
 }
 .dark {
     --background: #202020;
-    --primary: #ebebeb;
-    --secondary: #4e4e4e;
+    --primary: #f4f4f4;
+    --secondary: #2e2e2e;
     --border: #ffffff;
 }
 .hacker {
     --background: #000000;
     --primary: #00ff00;
-    --secondary: #4e4e4e;
+    --secondary: #202020;
     --border: #00aa00;
 }
 .monochrome {
@@ -23,6 +23,7 @@
     --border: #ffffff;
 }
 .colorful {
+    /* the horror */
     --background: #1eff00;
     --primary: #ff00f2;
     --secondary: #fff000;

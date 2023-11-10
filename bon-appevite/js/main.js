@@ -305,12 +305,14 @@ function updateCard(card, product) {
 let cartDisplay = 0;
 function cart() {
     if (cartDisplay !== -1) {
-        cartDisplay += 1;
-        DOMSelectors.cart.innerText = `🛒 ${cartDisplay}`;
         DOMSelectors.cart.className = "animation";
         setTimeout(function () {
             DOMSelectors.cart.className = "";
-        }, 100);
+        }, 50);
+        cartDisplay += 1;
+        DOMSelectors.cart.innerText = `🛒 ${cartDisplay}`;
+        DOMSelectors.cart.style.bottom = "2vh";
+        DOMSelectors.cart.className = "animation";
         DOMSelectors.cart.style.transitionDuration =
             (10 / cartDisplay).toString() + "s";
     }

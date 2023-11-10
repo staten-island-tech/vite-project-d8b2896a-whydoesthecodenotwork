@@ -100,6 +100,19 @@ const products = [
             },
         ],
     },
+    {
+        selected: 0,
+        name: "Medkit",
+        types: [
+            {
+                price: 19.99,
+                discounted: 5.99,
+                rating: 5,
+                image: "medkit.png",
+                description: `"Here, have a medkit"`,
+            },
+        ],
+    },
 ];
 
 export { products };

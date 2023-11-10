@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<link rel="icon" type="image/svg+xml" href="/vite.svg" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>city 17 gift shop</title>
+	</head>
+	<body class="light">
+		<h1>city 17 gift shop</h1>
+		<div id="themeselector">
+			<label for="theme">site theme: </label>
+			<select name="theme" id="theme">
+				<option name="light" selected>light</option>
+				<option name="dark">dark</option>
+				<option name="hacker">hacker</option>
+				<option name="monochrome">monochrome</option>
+				<option name="colorful">colorful</option>
+			</select>
+		</div>
+		<div id="filters">
+			<h2>shop filter options:</h2>
+            <div class="filter">
+				<label for="maxprice">max price:</label>
+				<input name="maxprice" id="maxprice" type="range" min="0" max="100" step="0.1"></input>
+				<output></output>
+			</div>
+			<div class="filter">
+				<label for="savings">savings display option:</label>
+				<select name="savings" id="savings">
+					<option name="percent" selected>percent</option>
+					<option name="number">number</option>
+					<option name="none">none</option>
+				</select>
+			</div>
+			<div class="filter">
+				<label for="rating">minimum rating:</label>
+				<input name="rating" id="rating" type="range" min="0" max="5" step="0.1" value="1"></input>
+				<output></output>
+			</div>
+			<div class="filter">
+				<label for="sort">sort by:</label>
+				<select name="sort" id="sort">
+					<option name="alphabetical" selected>alphabetical (a to z)</option>
+					<option name="price">price (low to high)</option>
+					<option name="rating">rating (high to low)</option>
+				</select>
+			</div>
+			<div class="filter">
+				<label for="direction">reverse sort?</label>
+				<input name="direction" id="direction" type="checkbox" value="on"></input>
+			</div>
+			<div class="filter">
+				<label for="stock">show out of stock?</label>
+				<input name="stock" id="stock" type="checkbox" value="on"></input>
+			</div>
+        </div>
+		<div id="cart" class="empty">🛒 0</div>
+		<div id="app"></div>
+		<script type="module" src="js/main.js"></script>
+	</body>
+</html>

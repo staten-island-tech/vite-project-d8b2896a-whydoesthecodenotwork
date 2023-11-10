@@ -8,11 +8,6 @@ const DOMSelectors = {
     theme: document.querySelector("#theme"),
 };
 
-DOMSelectors.head.insertAdjacentHTML(
-    "beforeend",
-    `<link rel="stylesheet" href="styles/style.css">`
-);
-
 // preload all product images here, because otherwise the card changes size for a split second due to no image
 products.forEach((product) => {
     product.types.forEach((item) => {

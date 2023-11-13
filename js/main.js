@@ -24,6 +24,8 @@ const inputs = {};
 
 // for each filter, add:
 // the input name : input element, to inputs
+// i cannot use map here because Array.from(document.querySelectorAll(".filter")) is an array, but inputs needs to be an object.
+// map returns an array
 document.querySelectorAll(".filter").forEach((input) => {
     inputs[input.children[1].name] = input.children[1];
 });
@@ -104,13 +106,21 @@ function updateFilter(input) {
     }
 
     // check which products should be displayed whenever a filter is updated
+    const filteredProducts = products.filter((product) => isFiltered(product));
     products.forEach((product) => {
-        shouldDisplay(product);
-        // if the savings dropdown was updated, update the cards' discount display
-        if (input.name === "savings") {
-            updateSavings(product);
+        const card = DOMSelectors["app"].querySelector(
+            `section[name="${product.name}"]`
+        );
+        if (filteredProducts.includes(product)) {
+            card.style.display = "flex";
+        } else {
+            card.style.display = "none";
         }
+        // if the savings dropdown was updated, update the cards' discount display
     });
+    if (input.name === "savings") {
+        products.forEach((product) => updateSavings(product));
+    }
 }
 
 function updateSavings(product) {
@@ -147,7 +157,7 @@ function updateSavings(product) {
     }
 }
 
-// go through all the filters and check product eligibility
+// go through all the filters (inputs) and check product eligibility
 function isFiltered(product) {
     const item = product.types[product.selected];
 
@@ -158,6 +168,7 @@ function isFiltered(product) {
             return 0;
         }
     } else {
+        // show out of stock things if the checkbox is checked
         return inputs.stock.checked * -1;
     }
 
@@ -170,27 +181,16 @@ function isFiltered(product) {
 }
 
 function getLowerNum(a, b) {
-    const nums = [a, b];
     // remove any nan
-    nums.forEach((x) => {
+    const nums = [a, b].filter((x) => {
         if (isNaN(x)) {
-            nums.splice(nums.indexOf(x), 1);
+            return 0;
         }
+        return 1;
     });
     // then get the lower of the two (or the one if there's only one)
     // ... is spread operator, because Math.min doesn't actually take arrays
     return Math.min(...nums);
-}
-
-function shouldDisplay(product) {
-    const card = DOMSelectors["app"].querySelector(
-        `section[name="${product.name}"]`
-    );
-    if (isFiltered(product)) {
-        card.style.display = "flex";
-    } else {
-        card.style.display = "none";
-    }
 }
 
 function insertCard(product) {
@@ -304,8 +304,12 @@ function updateCard(card, product) {
             Math.min(1, rating) * 100 + "%";
         rating -= 1;
     }
-    // check if card should display. update savings display. update all the filters if all cards are loaded in case sort changed
-    shouldDisplay(product);
+    // check if card should display. update savings display.
+    if (isFiltered(product)) {
+        card.style.display = "flex";
+    } else {
+        card.style.display = "none";
+    }
     updateSavings(product);
 }
 
@@ -316,7 +320,6 @@ function cart() {
     if (cartDisplay === 0) {
         // the cart is no longer empty. this class change will change the pointer hover
         DOMSelectors.cart.classList.remove("empty");
-        DOMSelectors.cart.classList.add("full");
     }
     if (cartDisplay !== -1) {
         // play an animation whenever an item is added
@@ -334,7 +337,7 @@ function cart() {
 
 function payload() {
     if (cartDisplay > 0) {
-        DOMSelectors.cart.removeEventListener("click", cartClick);
+        DOMSelectors.cart.removeEventListener("click", payload);
         setTimeout(function () {
             alert("oh dear");
             document.querySelectorAll("button").forEach((button) => {
@@ -347,17 +350,12 @@ function payload() {
         // goodbye cart
         DOMSelectors.cart.style.left = "105%";
         // change cursor back to no clicking
-        DOMSelectors.cart.classList.remove("full");
         DOMSelectors.cart.classList.add("empty");
         cartDisplay = -1;
     }
 }
 
-function cartClick() {
-    payload();
-}
-
-DOMSelectors.cart.addEventListener("click", cartClick);
+DOMSelectors.cart.addEventListener("click", payload);
 
 // handle theme selector down here
 DOMSelectors.theme.addEventListener("input", function () {

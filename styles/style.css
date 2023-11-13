@@ -190,11 +190,11 @@ select {
     cursor: not-allowed;
 }
 
-#cart.full:hover {
+#cart:not(.empty):hover {
     cursor: pointer;
 }
 
-#cart.full:active {
+#cart:not(.empty):active {
     border: 10px var(--border) inset;
 }
 

@@ -6,6 +6,7 @@ const DOMSelectors = {
     cart: document.querySelector("#cart"),
     body: document.querySelector("body"),
     theme: document.querySelector("#theme"),
+    category: document.querySelector("#category"),
 };
 
 // preload all product images here, because otherwise the card changes size for a split second due to no image
@@ -26,8 +27,38 @@ const inputs = {};
 // the input name : input element, to inputs
 // i cannot use map here because Array.from(document.querySelectorAll(".filter")) is an array, but inputs needs to be an object.
 // map returns an array
-document.querySelectorAll(".filter").forEach((input) => {
+document.querySelectorAll(".filter:not(.category)").forEach((input) => {
     inputs[input.children[1].name] = input.children[1];
+});
+
+// handle the category filter
+
+// go through all the products and keep track of what categories there are
+const categoryNames = new Set([]);
+products.forEach((product) => categoryNames.add(...product.category));
+categoryNames.forEach((category) => {
+    DOMSelectors.category.insertAdjacentHTML(
+        "beforeend",
+        `		
+            <div class="filter category">
+                <label for="${category}">show products of type ${category}?</label>
+                <input name="${category}" id="${category}" type="checkbox" value="on" checked></input>
+            </div>
+        `
+    );
+});
+
+// create a set (no duplicates) with all enabled categories
+const categories = categoryNames;
+document.querySelectorAll(".category").forEach((element) => {
+    element.addEventListener("input", function () {
+        if (element.children[1].checked) {
+            categories.add(element.children[1].name);
+        } else {
+            categories.delete(element.children[1].name);
+        }
+        console.log(categories);
+    });
 });
 
 function addCard(product) {
@@ -173,6 +204,10 @@ function isFiltered(product) {
     }
 
     if (item.rating < inputs.rating.value) {
+        return 0;
+    }
+
+    if (!product.category.some((c) => categories.has(c))) {
         return 0;
     }
 

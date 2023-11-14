@@ -6,6 +6,7 @@ const products = [
     {
         selected: 0,
         name: "Dr. Breen's private reserve",
+        category: ["drink"],
         types: [
             {
                 type: "Original",
@@ -38,6 +39,7 @@ const products = [
     {
         selected: 0,
         name: "Gelatinated Calorie Pastes",
+        category: ["food"],
         types: [
             {
                 price: 3.99,
@@ -51,6 +53,7 @@ const products = [
     {
         selected: 0,
         name: "Desiccated Sustenance Bars",
+        category: ["food"],
         types: [
             {
                 price: 2.99,
@@ -64,6 +67,7 @@ const products = [
     {
         selected: 0,
         name: "Standard Ration",
+        category: ["food"],
         types: [
             {
                 price: 5.99,
@@ -77,6 +81,7 @@ const products = [
     {
         selected: 0,
         name: "Melon",
+        category: ["food"],
         types: [
             {
                 price: 99.99,
@@ -90,6 +95,7 @@ const products = [
     {
         selected: 0,
         name: "Beer",
+        category: ["drink"],
         types: [
             {
                 price: NaN,
@@ -103,6 +109,7 @@ const products = [
     {
         selected: 0,
         name: "Medkit",
+        category: ["item", "food"],
         types: [
             {
                 price: 19.99,

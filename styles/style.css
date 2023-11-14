@@ -46,9 +46,7 @@ select {
     gap: 1%;
 }
 
-#category {
-    display: flex;
-    flex-direction: column;
+#tag {
     border-top: 2px solid var(--border);
 }
 
@@ -114,6 +112,13 @@ select {
 
 .card img {
     max-width: 100%;
+}
+
+.card details {
+}
+
+.card details ul {
+    font-size: 1rem;
 }
 
 .card .rating {

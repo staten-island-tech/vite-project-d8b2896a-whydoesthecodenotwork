@@ -6,7 +6,7 @@ const DOMSelectors = {
     cart: document.querySelector("#cart"),
     body: document.querySelector("body"),
     theme: document.querySelector("#theme"),
-    category: document.querySelector("#category"),
+    tag: document.querySelector("#tag"),
 };
 
 // preload all product images here, because otherwise the card changes size for a split second due to no image
@@ -27,37 +27,38 @@ const inputs = {};
 // the input name : input element, to inputs
 // i cannot use map here because Array.from(document.querySelectorAll(".filter")) is an array, but inputs needs to be an object.
 // map returns an array
-document.querySelectorAll(".filter:not(.category)").forEach((input) => {
+document.querySelectorAll(".filter:not(.tag)").forEach((input) => {
     inputs[input.children[1].name] = input.children[1];
 });
 
-// handle the category filter
+// handle the tag filter.
+// essentially it's a ripoff of the normal filters, but instead of being in inputs as {name:element} all enabled tags are stored in tags set.
 
-// go through all the products and keep track of what categories there are
-const categoryNames = new Set([]);
-products.forEach((product) => categoryNames.add(...product.category));
-categoryNames.forEach((category) => {
-    DOMSelectors.category.insertAdjacentHTML(
+// go through all the products and keep track of what tags there are
+const tagNames = new Set([]);
+products.forEach((product) => tagNames.add(...product.tags));
+tagNames.forEach((tag) => {
+    DOMSelectors.tag.insertAdjacentHTML(
         "beforeend",
         `		
-            <div class="filter category">
-                <label for="${category}">show products of type ${category}?</label>
-                <input name="${category}" id="${category}" type="checkbox" value="on" checked></input>
+            <div class="filter tag">
+                <label for="${tag}">show products of type ${tag}?</label>
+                <input name="${tag}" id="${tag}" type="checkbox" value="on" checked></input>
             </div>
         `
     );
 });
 
-// create a set (no duplicates) with all enabled categories
-const categories = categoryNames;
-document.querySelectorAll(".category").forEach((element) => {
+// create a set (no duplicates) with all enabled tags
+const tags = tagNames;
+document.querySelectorAll(".tag").forEach((element) => {
     element.addEventListener("input", function () {
         if (element.children[1].checked) {
-            categories.add(element.children[1].name);
+            tags.add(element.children[1].name);
         } else {
-            categories.delete(element.children[1].name);
+            tags.delete(element.children[1].name);
         }
-        console.log(categories);
+        productDisplays();
     });
 });
 
@@ -137,6 +138,15 @@ function updateFilter(input) {
     }
 
     // check which products should be displayed whenever a filter is updated
+    productDisplays();
+
+    // if the savings dropdown was updated, update the cards' discount display
+    if (input.name === "savings") {
+        products.forEach((product) => updateSavings(product));
+    }
+}
+
+function productDisplays() {
     const filteredProducts = products.filter((product) => isFiltered(product));
     products.forEach((product) => {
         const card = DOMSelectors["app"].querySelector(
@@ -147,10 +157,9 @@ function updateFilter(input) {
         } else {
             card.style.display = "none";
         }
-        // if the savings dropdown was updated, update the cards' discount display
     });
-    if (input.name === "savings") {
-        products.forEach((product) => updateSavings(product));
+    if (filteredProducts.length === 0) {
+        console.log("ow");
     }
 }
 
@@ -207,7 +216,7 @@ function isFiltered(product) {
         return 0;
     }
 
-    if (!product.category.some((c) => categories.has(c))) {
+    if (!product.tags.some((c) => tags.has(c))) {
         return 0;
     }
 
@@ -260,6 +269,10 @@ function updateCard(card, product) {
                             <h4 class="startext">This item has a rating of ${item.rating} stars</h4>
                         </div>
                         <h4>${item.description}</h4>
+                        <details>
+                            <summary>Tags</summary>
+                            <ul></ul>
+                        </details>
                         <button id="buy" class="cart">
                         BUY NOW!!
                         </button>
@@ -339,6 +352,15 @@ function updateCard(card, product) {
             Math.min(1, rating) * 100 + "%";
         rating -= 1;
     }
+
+    // add tags
+    product.tags.forEach((tag) => {
+        card.querySelector("ul").insertAdjacentHTML(
+            "beforeend",
+            `<li>${tag}</li>`
+        );
+    });
+
     // check if card should display. update savings display.
     if (isFiltered(product)) {
         card.style.display = "flex";

@@ -9,6 +9,16 @@ const DOMSelectors = {
     tag: document.querySelector("#tag"),
 };
 
+// preload all product images here, because otherwise the card changes size for a split second due to no image
+products.forEach((product) => {
+    product.types.forEach((item) => {
+        DOMSelectors.head.insertAdjacentHTML(
+            "beforeend",
+            `<link rel="preload" href="./${item.image}" as="image" />`
+        );
+    });
+});
+
 // because i want global scope on these
 // inputs contains the input elements
 const inputs = {};
@@ -25,8 +35,11 @@ document.querySelectorAll(".filter:not(.tag)").forEach((input) => {
 // essentially it's a ripoff of the normal filters, but instead of being in inputs as {name:element} all enabled tags are stored in tags set.
 
 // go through all the products and keep track of what tags there are
-const tagNames = new Set([]);
-products.forEach((product) => tagNames.add(...product.tags));
+
+const tagNames = new Set(products.flatMap((product) => product.tags));
+// normal map would return an array like [[drink], [drink], [food, item]...] (not good)
+// flatmap is basically .map(bla).flat and that flattens it into [drink, drink, food, item...]
+// set removes duplicates, so [drink, food, item]
 tagNames.forEach((tag) => {
     DOMSelectors.tag.insertAdjacentHTML(
         "beforeend",

@@ -6,17 +6,8 @@ const DOMSelectors = {
     cart: document.querySelector("#cart"),
     body: document.querySelector("body"),
     theme: document.querySelector("#theme"),
+    tag: document.querySelector("#tag"),
 };
-
-// preload all product images here, because otherwise the card changes size for a split second due to no image
-products.forEach((product) => {
-    product.types.forEach((item) => {
-        DOMSelectors.head.insertAdjacentHTML(
-            "beforeend",
-            `<link rel="preload" href="./${item.image}" as="image" />`
-        );
-    });
-});
 
 // because i want global scope on these
 // inputs contains the input elements
@@ -24,8 +15,41 @@ const inputs = {};
 
 // for each filter, add:
 // the input name : input element, to inputs
-document.querySelectorAll(".filter").forEach((input) => {
+// i cannot use map here because Array.from(document.querySelectorAll(".filter")) is an array, but inputs needs to be an object.
+// map returns an array
+document.querySelectorAll(".filter:not(.tag)").forEach((input) => {
     inputs[input.children[1].name] = input.children[1];
+});
+
+// handle the tag filter.
+// essentially it's a ripoff of the normal filters, but instead of being in inputs as {name:element} all enabled tags are stored in tags set.
+
+// go through all the products and keep track of what tags there are
+const tagNames = new Set([]);
+products.forEach((product) => tagNames.add(...product.tags));
+tagNames.forEach((tag) => {
+    DOMSelectors.tag.insertAdjacentHTML(
+        "beforeend",
+        `		
+            <div class="filter tag">
+                <label for="${tag}">${tag}</label>
+                <input name="${tag}" id="${tag}" type="checkbox" value="on" checked></input>
+            </div>
+        `
+    );
+});
+
+// create a set (no duplicates) with all enabled tags
+const tags = tagNames;
+document.querySelectorAll(".tag").forEach((element) => {
+    element.addEventListener("input", function () {
+        if (element.children[1].checked) {
+            tags.add(element.children[1].name);
+        } else {
+            tags.delete(element.children[1].name);
+        }
+        productDisplays();
+    });
 });
 
 function addCard(product) {
@@ -104,13 +128,38 @@ function updateFilter(input) {
     }
 
     // check which products should be displayed whenever a filter is updated
+    productDisplays();
+
+    // if the savings dropdown was updated, update the cards' discount display
+    if (input.name === "savings") {
+        products.forEach((product) => updateSavings(product));
+    }
+}
+
+function productDisplays() {
+    const filteredProducts = products.filter((product) => isFiltered(product));
     products.forEach((product) => {
-        shouldDisplay(product);
-        // if the savings dropdown was updated, update the cards' discount display
-        if (input.name === "savings") {
-            updateSavings(product);
+        const card = DOMSelectors["app"].querySelector(
+            `section[name="${product.name}"]`
+        );
+        if (filteredProducts.includes(product)) {
+            card.style.display = "flex";
+        } else {
+            card.style.display = "none";
         }
     });
+    if (filteredProducts.length === 0) {
+        if (!DOMSelectors.app.querySelector(".oops")) {
+            DOMSelectors.app.insertAdjacentHTML(
+                "afterbegin",
+                "<h2 class='oops'>No eligible items were found</h2>"
+            );
+        }
+    } else {
+        if (DOMSelectors.app.querySelector(".oops")) {
+            DOMSelectors.app.querySelector(".oops").remove();
+        }
+    }
 }
 
 function updateSavings(product) {
@@ -147,7 +196,7 @@ function updateSavings(product) {
     }
 }
 
-// go through all the filters and check product eligibility
+// go through all the filters (inputs) and check product eligibility
 function isFiltered(product) {
     const item = product.types[product.selected];
 
@@ -158,10 +207,17 @@ function isFiltered(product) {
             return 0;
         }
     } else {
-        return inputs.stock.checked * -1;
+        // only show out of stock things if the checkbox is checked
+        if (!inputs.stock.checked) {
+            return 0;
+        }
     }
 
     if (item.rating < inputs.rating.value) {
+        return 0;
+    }
+
+    if (!product.tags.some((c) => tags.has(c))) {
         return 0;
     }
 
@@ -170,27 +226,16 @@ function isFiltered(product) {
 }
 
 function getLowerNum(a, b) {
-    const nums = [a, b];
     // remove any nan
-    nums.forEach((x) => {
+    const nums = [a, b].filter((x) => {
         if (isNaN(x)) {
-            nums.splice(nums.indexOf(x), 1);
+            return 0;
         }
+        return 1;
     });
     // then get the lower of the two (or the one if there's only one)
     // ... is spread operator, because Math.min doesn't actually take arrays
     return Math.min(...nums);
-}
-
-function shouldDisplay(product) {
-    const card = DOMSelectors["app"].querySelector(
-        `section[name="${product.name}"]`
-    );
-    if (isFiltered(product)) {
-        card.style.display = "flex";
-    } else {
-        card.style.display = "none";
-    }
 }
 
 function insertCard(product) {
@@ -225,6 +270,10 @@ function updateCard(card, product) {
                             <h4 class="startext">This item has a rating of ${item.rating} stars</h4>
                         </div>
                         <h4>${item.description}</h4>
+                        <details>
+                            <summary>Tags</summary>
+                            <ul></ul>
+                        </details>
                         <button id="buy" class="cart">
                         BUY NOW!!
                         </button>
@@ -304,8 +353,21 @@ function updateCard(card, product) {
             Math.min(1, rating) * 100 + "%";
         rating -= 1;
     }
-    // check if card should display. update savings display. update all the filters if all cards are loaded in case sort changed
-    shouldDisplay(product);
+
+    // add tags
+    product.tags.forEach((tag) => {
+        card.querySelector("ul").insertAdjacentHTML(
+            "beforeend",
+            `<li>${tag}</li>`
+        );
+    });
+
+    // check if card should display. update savings display.
+    if (isFiltered(product)) {
+        card.style.display = "flex";
+    } else {
+        card.style.display = "none";
+    }
     updateSavings(product);
 }
 
@@ -316,7 +378,6 @@ function cart() {
     if (cartDisplay === 0) {
         // the cart is no longer empty. this class change will change the pointer hover
         DOMSelectors.cart.classList.remove("empty");
-        DOMSelectors.cart.classList.add("full");
     }
     if (cartDisplay !== -1) {
         // play an animation whenever an item is added
@@ -334,7 +395,7 @@ function cart() {
 
 function payload() {
     if (cartDisplay > 0) {
-        DOMSelectors.cart.removeEventListener("click", cartClick);
+        DOMSelectors.cart.removeEventListener("click", payload);
         setTimeout(function () {
             alert("oh dear");
             document.querySelectorAll("button").forEach((button) => {
@@ -347,17 +408,12 @@ function payload() {
         // goodbye cart
         DOMSelectors.cart.style.left = "105%";
         // change cursor back to no clicking
-        DOMSelectors.cart.classList.remove("full");
         DOMSelectors.cart.classList.add("empty");
         cartDisplay = -1;
     }
 }
 
-function cartClick() {
-    payload();
-}
-
-DOMSelectors.cart.addEventListener("click", cartClick);
+DOMSelectors.cart.addEventListener("click", payload);
 
 // handle theme selector down here
 DOMSelectors.theme.addEventListener("input", function () {

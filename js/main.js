@@ -9,16 +9,6 @@ const DOMSelectors = {
     tag: document.querySelector("#tag"),
 };
 
-// preload all product images here, because otherwise the card changes size for a split second due to no image
-products.forEach((product) => {
-    product.types.forEach((item) => {
-        DOMSelectors.head.insertAdjacentHTML(
-            "beforeend",
-            `<link rel="preload" href="./${item.image}" as="image" />`
-        );
-    });
-});
-
 // because i want global scope on these
 // inputs contains the input elements
 const inputs = {};
@@ -42,7 +32,7 @@ tagNames.forEach((tag) => {
         "beforeend",
         `		
             <div class="filter tag">
-                <label for="${tag}">show products of type ${tag}?</label>
+                <label for="${tag}">${tag}</label>
                 <input name="${tag}" id="${tag}" type="checkbox" value="on" checked></input>
             </div>
         `
@@ -159,7 +149,16 @@ function productDisplays() {
         }
     });
     if (filteredProducts.length === 0) {
-        console.log("ow");
+        if (!DOMSelectors.app.querySelector(".oops")) {
+            DOMSelectors.app.insertAdjacentHTML(
+                "afterbegin",
+                "<h2 class='oops'>No eligible items were found</h2>"
+            );
+        }
+    } else {
+        if (DOMSelectors.app.querySelector(".oops")) {
+            DOMSelectors.app.querySelector(".oops").remove();
+        }
     }
 }
 
@@ -208,8 +207,10 @@ function isFiltered(product) {
             return 0;
         }
     } else {
-        // show out of stock things if the checkbox is checked
-        return inputs.stock.checked * -1;
+        // only show out of stock things if the checkbox is checked
+        if (!inputs.stock.checked) {
+            return 0;
+        }
     }
 
     if (item.rating < inputs.rating.value) {

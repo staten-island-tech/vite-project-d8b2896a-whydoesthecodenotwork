@@ -1,5 +1,7 @@
 import { products } from "./products.js";
 import { filterData } from "./filters.js";
+import "../styles/style.css";
+
 const DOMSelectors = {
     head: document.querySelector("head"),
     app: document.querySelector("#app"),

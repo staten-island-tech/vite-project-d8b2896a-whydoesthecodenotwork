@@ -276,15 +276,15 @@ function updateCard(card, product) {
 
     card.innerHTML = `
                         <h2>${product.name}</h2>
-                        <h3 class="price">Old price: $${item.price}</h3>
-                        <h3 class="discount">$${item.discounted}</h3>
-                        <h3 class="saving">You save nothing!</h3>
+                        <p class="price">Old price: $${item.price}</p>
+                        <p class="discount">$${item.discounted}</p>
+                        <p class="saving">You save nothing!</p>
                         <img src="./${item.image}" alt="${product.name}" />
                         <div class="rating" title="This item has a rating of ${item.rating} stars">
                             <div class="stars"></div>
-                            <h4 class="startext">This item has a rating of ${item.rating} stars</h4>
+                            <p class="startext">This item has a rating of ${item.rating} stars</p>
                         </div>
-                        <h4>${item.description}</h4>
+                        <p>${item.description}</p>
                         <details>
                             <summary>Tags</summary>
                             <ul></ul>
